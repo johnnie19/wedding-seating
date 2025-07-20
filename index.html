@@ -15,9 +15,6 @@
             font-family: 'Georgia', serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            display: -webkit-flex;
-            -webkit-align-items: center;
-            -webkit-justify-content: center;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -36,6 +33,16 @@
             overflow: hidden;
         }
 
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+        }
+
         .header {
             margin-bottom: 30px;
         }
@@ -50,14 +57,16 @@
         .wedding-date {
             color: #7f8c8d;
             font-size: 1.1em;
+            margin-bottom: 20px;
         }
 
         .subtitle {
+            color: #34495e;
             font-size: 1.2em;
             margin-bottom: 30px;
         }
 
-        form.search-container {
+        .search-container {
             position: relative;
             margin-bottom: 30px;
         }
@@ -78,17 +87,15 @@
             background: white;
             box-shadow: 0 0 20px rgba(52, 152, 219, 0.2);
             transform: translateY(-2px);
-            outline: 2px solid #005fcc;
         }
 
         .search-icon {
             position: absolute;
+            right: 15px;
             top: 50%;
-            right: 20px;
             transform: translateY(-50%);
             color: #7f8c8d;
             font-size: 1.2em;
-            pointer-events: none;
         }
 
         .suggestions {
@@ -110,29 +117,77 @@
             padding: 12px 20px;
             cursor: pointer;
             border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
         }
 
-        .suggestion-item.active,
-        .suggestion-item:focus {
-            background: #e0e0e0;
-            outline: 2px solid #005fcc;
+        .suggestion-item:hover,
+        .suggestion-item.active {
+            background-color: #f8f9fa;
         }
 
-        .loading,
-        .error,
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
         .result {
-            margin-top: 20px;
             display: none;
+            animation: fadeInUp 0.6s ease;
         }
 
-        .loading .spinner {
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .table-number {
+            font-size: 4em;
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .table-label {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .guest-name {
+            font-size: 1.8em;
+            color: #27ae60;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .message {
+            color: #7f8c8d;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: none;
+            color: #3498db;
+            font-size: 1.1em;
+            margin: 20px 0;
+        }
+
+        .spinner {
             display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(0,0,0,0.1);
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
             border-top: 3px solid #3498db;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-right: 10px;
         }
 
         @keyframes spin {
@@ -141,46 +196,36 @@
         }
 
         .error {
-            color: #c0392b;
-            font-weight: bold;
+            color: #e74c3c;
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
         }
 
-        .result .guest-name {
-            font-size: 2em;
-            margin-bottom: 10px;
-            color: #27ae60;
-        }
-
-        .result .table-label {
-            margin-top: 5px;
-            font-size: 1em;
-            color: #2c3e50;
-        }
-
-        .result .table-number {
-            font-size: 4em;
-            color: #2980b9;
-            margin: 10px 0;
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
         }
 
         @media (max-width: 600px) {
             .container {
                 padding: 30px 20px;
                 margin: 10px;
-                border-radius: 10px;
             }
-
+            
             .couple-names {
                 font-size: 2em;
             }
-
+            
             .table-number {
                 font-size: 3em;
-            }
-
-            .suggestion-item {
-                padding: 15px;
-                min-height: 50px;
             }
         }
     </style>
@@ -193,23 +238,16 @@
             <h2 class="subtitle">Find Your Table</h2>
         </div>
 
-        <form class="search-container" role="search" onsubmit="event.preventDefault();">
-            <input
-                type="text"
-                id="nameInput"
+        <div class="search-container">
+            <input 
+                type="text" 
+                id="nameInput" 
                 placeholder="Enter your name..."
                 autocomplete="off"
-                aria-label="Guest name"
             >
             <span class="search-icon">🔍</span>
-            <div
-                class="suggestions"
-                id="suggestions"
-                role="listbox"
-                aria-live="polite"
-                aria-expanded="false"
-            ></div>
-        </form>
+            <div class="suggestions" id="suggestions"></div>
+        </div>
 
         <div class="loading" id="loading">
             <span class="spinner"></span>
@@ -228,14 +266,23 @@
                 We can't wait to celebrate with you! 🎉
             </div>
         </div>
+
+        <div class="instructions">
+            <strong>Setup Instructions:</strong><br>
+            1. Replace YOUR_SHEET_ID with your actual Google Sheets ID<br>
+            2. Make sure your Google Sheet has columns: Name, Table<br>
+            3. Set sheet to "Anyone with the link can view"<br>
+            4. Test with sample data below if needed
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
     <script>
-        // Replace this URL with your Google Sheets CSV export URL
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=0';
-
+        // Replace YOUR_SHEET_ID with your actual Google Sheets ID
+        const SHEET_ID = '19a2FMEMbNdYo-m4AVkALMnVTc_W_nn0NfbhXTTsSQek';
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+        
         let guestData = [];
+        let currentFocus = -1;
 
         const nameInput = document.getElementById('nameInput');
         const suggestions = document.getElementById('suggestions');
@@ -245,128 +292,200 @@
         const guestName = document.getElementById('guestName');
         const tableNumber = document.getElementById('tableNumber');
 
-        function hideAllMessages() {
-            loading.style.display = 'none';
-            error.style.display = 'none';
-            result.style.display = 'none';
-            suggestions.setAttribute('aria-expanded', 'false');
-        }
-
         // Load data from Google Sheets
         async function loadGuestData() {
-            hideAllMessages();
-            loading.style.display = 'block';
-            nameInput.disabled = true;
-
             try {
-                const response = await fetch(https://docs.google.com/spreadsheets/d/19a2FMEMbNdYo-m4AVkALMnVTc_W_nn0NfbhXTTsSQek/edit?gid=0#gid=0);
+                console.log('Loading data from:', SHEET_URL);
+                
+                const response = await fetch(SHEET_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const csvText = await response.text();
-                const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-                guestData = parsed.data.map(row => ({
-                    name: row['Name'].trim(),
-                    table: row['Table'].trim()
-                }));
+                console.log('CSV data received:', csvText.substring(0, 200) + '...');
+                
+                // Parse CSV data manually (simple parsing)
+                const lines = csvText.split('\n');
+                guestData = [];
+                
+                // Skip header row, process data rows
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (line) {
+                        // Split by comma, handle quoted values
+                        const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+                        if (matches && matches.length >= 2) {
+                            const name = matches[0].replace(/"/g, '').trim();
+                            const table = matches[1].replace(/"/g, '').trim();
+                            if (name && table) {
+                                guestData.push({ name: name, table: table });
+                            }
+                        }
+                    }
+                }
+                
+                console.log('Parsed guest data:', guestData);
+                
+                if (guestData.length === 0) {
+                    throw new Error('No guest data found');
+                }
+                
             } catch (err) {
                 console.error('Error loading guest data:', err);
-                hideAllMessages();
-                error.textContent = 'Error loading guest list. Displaying sample data.';
-                error.style.display = 'block';
+                
+                // Fallback to sample data
                 guestData = [
-                    { name: 'Alice Wonderland', table: '1' },
-                    { name: 'Bob Builder', table: '2' },
-                    { name: 'Charlie Chocolate', table: '3' }
+                    { name: 'John Smith', table: '1' },
+                    { name: 'Jane Doe', table: '2' },
+                    { name: 'Mike Johnson', table: '3' },
+                    { name: 'Sarah Wilson', table: '1' },
+                    { name: 'David Brown', table: '4' },
+                    { name: 'Emily Davis', table: '2' },
+                    { name: 'Chris Miller', table: '5' },
+                    { name: 'Lisa Anderson', table: '3' },
+                    { name: 'Nissy Test', table: '1' },
+                    { name: 'Alen Test', table: '1' }
                 ];
-            } finally {
-                loading.style.display = 'none';
-                nameInput.disabled = false;
+                
+                console.log('Using sample data:', guestData);
             }
         }
 
         // Search for guests
         function searchGuests(query) {
             if (!query) return [];
+            
             const searchTerm = query.toLowerCase();
-            return guestData.filter(guest =>
+            return guestData.filter(guest => 
                 guest.name.toLowerCase().includes(searchTerm)
-            ).slice(0, 5);
+            ).slice(0, 5); // Limit to 5 suggestions
         }
 
         // Show suggestions
         function showSuggestions(matches) {
             suggestions.innerHTML = '';
-            hideAllMessages();
-
+            
             if (matches.length === 0) {
                 suggestions.style.display = 'none';
                 return;
             }
 
-            matches.forEach(guest => {
+            matches.forEach((guest, index) => {
                 const item = document.createElement('div');
                 item.className = 'suggestion-item';
                 item.textContent = guest.name;
-                item.setAttribute('role', 'option');
-                item.tabIndex = 0;
                 item.onclick = () => selectGuest(guest);
+                item.onmouseenter = () => {
+                    currentFocus = index;
+                    updateActiveItem();
+                };
                 suggestions.appendChild(item);
             });
 
             suggestions.style.display = 'block';
-            suggestions.setAttribute('aria-expanded', 'true');
             currentFocus = -1;
         }
 
+        // Update active item for keyboard navigation
+        function updateActiveItem() {
+            const items = suggestions.querySelectorAll('.suggestion-item');
+            items.forEach((item, index) => {
+                item.classList.toggle('active', index === currentFocus);
+            });
+        }
+
+        // Select a guest
         function selectGuest(guest) {
+            nameInput.value = guest.name;
+            suggestions.style.display = 'none';
+            showResult(guest);
+        }
+
+        // Show result
+        function showResult(guest) {
             hideAllMessages();
             guestName.textContent = guest.name;
             tableNumber.textContent = `Table ${guest.table}`;
             result.style.display = 'block';
         }
 
-        // Keyboard navigation
-        let currentFocus = -1;
-        nameInput.addEventListener('keydown', function(e) {
-            const items = suggestions.getElementsByClassName('suggestion-item');
-            if (!items.length) return;
+        // Hide all messages
+        function hideAllMessages() {
+            loading.style.display = 'none';
+            error.style.display = 'none';
+            result.style.display = 'none';
+        }
 
-            if (e.key === 'ArrowDown') {
-                currentFocus++;
-                addActive(items);
-                e.preventDefault();
-            } else if (e.key === 'ArrowUp') {
-                currentFocus--;
-                addActive(items);
-                e.preventDefault();
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (currentFocus > -1) items[currentFocus].click();
+        // Show error
+        function showError() {
+            hideAllMessages();
+            error.style.display = 'block';
+        }
+
+        // Event listeners
+        nameInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            
+            if (query.length === 0) {
+                suggestions.style.display = 'none';
+                hideAllMessages();
+                return;
+            }
+
+            const matches = searchGuests(query);
+            showSuggestions(matches);
+
+            // If exact match found, show result immediately
+            const exactMatch = guestData.find(guest => 
+                guest.name.toLowerCase() === query.toLowerCase()
+            );
+            
+            if (exactMatch) {
+                setTimeout(() => showResult(exactMatch), 300);
             }
         });
 
-        function addActive(items) {
-            removeActive(items);
-            if (currentFocus >= items.length) currentFocus = 0;
-            if (currentFocus < 0) currentFocus = items.length - 1;
-            items[currentFocus].classList.add('active');
-            items[currentFocus].setAttribute('aria-selected', 'true');
-            items[currentFocus].focus();
-        }
-
-        function removeActive(items) {
-            Array.from(items).forEach(item => {
-                item.classList.remove('active');
-                item.removeAttribute('aria-selected');
-            });
-        }
+        // Keyboard navigation
+        nameInput.addEventListener('keydown', (e) => {
+            const items = suggestions.querySelectorAll('.suggestion-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentFocus = (currentFocus + 1) % items.length;
+                updateActiveItem();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentFocus = currentFocus <= 0 ? items.length - 1 : currentFocus - 1;
+                updateActiveItem();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentFocus >= 0 && items[currentFocus]) {
+                    items[currentFocus].click();
+                } else {
+                    // Try to find match for current input
+                    const query = nameInput.value.trim();
+                    const match = guestData.find(guest => 
+                        guest.name.toLowerCase().includes(query.toLowerCase())
+                    );
+                    
+                    if (match) {
+                        selectGuest(match);
+                    } else if (query) {
+                        showError();
+                    }
+                }
+            }
+        });
 
         // Hide suggestions when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-container')) {
-                hideAllMessages();
+                suggestions.style.display = 'none';
             }
         });
 
-        // Initialize on load
+        // Load data when page loads
         window.addEventListener('load', loadGuestData);
     </script>
 </body>
