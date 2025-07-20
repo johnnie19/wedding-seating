@@ -234,7 +234,7 @@
     <div class="container">
         <div class="header">
             <h1 class="couple-names">Nissy & Alen</h1>
-            <p class="wedding-date">July 26, 2025</p>
+            <p class="wedding-date">August 15, 2025</p>
             <h2 class="subtitle">Find Your Table</h2>
         </div>
 
@@ -305,7 +305,7 @@
                 const csvText = await response.text();
                 console.log('CSV data received:', csvText.substring(0, 200) + '...');
                 
-                // Parse CSV data manually (simple parsing)
+                // Parse CSV data manually (better parsing for full names)
                 const lines = csvText.split('\n');
                 guestData = [];
                 
@@ -313,11 +313,29 @@
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (line) {
-                        // Split by comma, handle quoted values
-                        const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-                        if (matches && matches.length >= 2) {
-                            const name = matches[0].replace(/"/g, '').trim();
-                            const table = matches[1].replace(/"/g, '').trim();
+                        // Handle CSV parsing with proper comma handling for full names
+                        let columns = [];
+                        let current = '';
+                        let inQuotes = false;
+                        
+                        for (let j = 0; j < line.length; j++) {
+                            const char = line[j];
+                            
+                            if (char === '"') {
+                                inQuotes = !inQuotes;
+                            } else if (char === ',' && !inQuotes) {
+                                columns.push(current.trim());
+                                current = '';
+                            } else {
+                                current += char;
+                            }
+                        }
+                        // Don't forget the last column
+                        columns.push(current.trim());
+                        
+                        if (columns.length >= 2) {
+                            const name = columns[0].replace(/^"|"$/g, '').trim(); // Remove surrounding quotes
+                            const table = columns[1].replace(/^"|"$/g, '').trim();
                             if (name && table) {
                                 guestData.push({ name: name, table: table });
                             }
@@ -334,18 +352,20 @@
             } catch (err) {
                 console.error('Error loading guest data:', err);
                 
-                // Fallback to sample data
+                // Fallback to sample data with full names
                 guestData = [
-                    { name: 'John Smith', table: '1' },
-                    { name: 'Jane Doe', table: '2' },
-                    { name: 'Mike Johnson', table: '3' },
-                    { name: 'Sarah Wilson', table: '1' },
-                    { name: 'David Brown', table: '4' },
-                    { name: 'Emily Davis', table: '2' },
-                    { name: 'Chris Miller', table: '5' },
-                    { name: 'Lisa Anderson', table: '3' },
-                    { name: 'Nissy Test', table: '1' },
-                    { name: 'Alen Test', table: '1' }
+                    { name: 'John Michael Smith', table: '1' },
+                    { name: 'Jane Elizabeth Doe', table: '2' },
+                    { name: 'Mike Robert Johnson', table: '3' },
+                    { name: 'Sarah Michelle Wilson', table: '1' },
+                    { name: 'David James Brown', table: '4' },
+                    { name: 'Emily Grace Davis', table: '2' },
+                    { name: 'Christopher Allen Miller', table: '5' },
+                    { name: 'Lisa Marie Anderson', table: '3' },
+                    { name: 'Nissy Katherine Test', table: '1' },
+                    { name: 'Alen Christopher Test', table: '1' },
+                    { name: 'Maria Gonzalez Rodriguez', table: '6' },
+                    { name: 'Robert William Thompson', table: '7' }
                 ];
                 
                 console.log('Using sample data:', guestData);
