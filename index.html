@@ -30,7 +30,7 @@
             width: 100%;
             text-align: center;
             position: relative;
-            overflow: hidden;
+            /* Removed overflow: hidden to allow suggestions to show */
         }
 
         .container::before {
@@ -41,6 +41,7 @@
             right: 0;
             height: 4px;
             background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            border-radius: 20px 20px 0 0;
         }
 
         .header {
@@ -69,6 +70,8 @@
         .search-container {
             position: relative;
             margin-bottom: 30px;
+            /* Ensure suggestions can extend beyond container */
+            z-index: 1000;
         }
 
         #nameInput {
@@ -96,6 +99,7 @@
             transform: translateY(-50%);
             color: #7f8c8d;
             font-size: 1.2em;
+            pointer-events: none;
         }
 
         .suggestions {
@@ -107,26 +111,39 @@
             border: 2px solid #e0e0e0;
             border-top: none;
             border-radius: 0 0 15px 15px;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
-            z-index: 1000;
+            z-index: 2000;
             display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            /* Ensure suggestions appear above everything */
         }
 
         .suggestion-item {
-            padding: 12px 20px;
+            padding: 15px 20px;
             cursor: pointer;
             border-bottom: 1px solid #f0f0f0;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-size: 1em;
+            color: #2c3e50;
         }
 
         .suggestion-item:hover,
         .suggestion-item.active {
-            background-color: #f8f9fa;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+            padding-left: 16px;
         }
 
         .suggestion-item:last-child {
             border-bottom: none;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .suggestion-item:first-child {
+            margin-top: 0;
         }
 
         .result {
@@ -204,10 +221,17 @@
             display: none;
         }
 
+        /* Mobile responsiveness */
         @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
             .container {
                 padding: 30px 20px;
                 margin: 10px;
+                /* Allow container to expand for suggestions on mobile */
+                position: relative;
             }
             
             .couple-names {
@@ -217,6 +241,43 @@
             .table-number {
                 font-size: 3em;
             }
+
+            .suggestions {
+                /* Better mobile positioning */
+                max-height: 200px;
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            .suggestion-item {
+                padding: 18px 20px;
+                font-size: 1.1em;
+                min-height: 50px;
+                display: flex;
+                align-items: center;
+            }
+
+            #nameInput {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+
+        /* Ensure suggestions work in all browsers */
+        .suggestions::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .suggestions::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .suggestions::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .suggestions::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
     </style>
 </head>
@@ -256,6 +317,7 @@
                 We can't wait to celebrate with you! 🎉
             </div>
         </div>
+    </div>
 
     <script>
         // Replace YOUR_SHEET_ID with your actual Google Sheets ID
@@ -346,7 +408,10 @@
                     { name: 'Nissy Katherine Test', table: '1' },
                     { name: 'Alen Christopher Test', table: '1' },
                     { name: 'Maria Gonzalez Rodriguez', table: '6' },
-                    { name: 'Robert William Thompson', table: '7' }
+                    { name: 'Robert William Thompson', table: '7' },
+                    { name: 'Amanda Jessica Parker', table: '8' },
+                    { name: 'Steven Michael Clark', table: '9' },
+                    { name: 'Rachel Anne Martinez', table: '10' }
                 ];
                 
                 console.log('Using sample data:', guestData);
@@ -360,7 +425,7 @@
             const searchTerm = query.toLowerCase();
             return guestData.filter(guest => 
                 guest.name.toLowerCase().includes(searchTerm)
-            ).slice(0, 5); // Limit to 5 suggestions
+            ).slice(0, 6); // Show up to 6 suggestions
         }
 
         // Show suggestions
@@ -437,13 +502,13 @@
             const matches = searchGuests(query);
             showSuggestions(matches);
 
-            // If exact match found, show result immediately
+            // If exact match found, show result immediately after a short delay
             const exactMatch = guestData.find(guest => 
                 guest.name.toLowerCase() === query.toLowerCase()
             );
             
             if (exactMatch) {
-                setTimeout(() => showResult(exactMatch), 300);
+                setTimeout(() => showResult(exactMatch), 500);
             }
         });
 
@@ -451,14 +516,24 @@
         nameInput.addEventListener('keydown', (e) => {
             const items = suggestions.querySelectorAll('.suggestion-item');
             
+            if (items.length === 0) return;
+            
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                currentFocus = (currentFocus + 1) % items.length;
+                currentFocus = currentFocus < items.length - 1 ? currentFocus + 1 : 0;
                 updateActiveItem();
+                // Scroll into view if needed
+                if (items[currentFocus]) {
+                    items[currentFocus].scrollIntoView({ block: 'nearest' });
+                }
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                currentFocus = currentFocus <= 0 ? items.length - 1 : currentFocus - 1;
+                currentFocus = currentFocus > 0 ? currentFocus - 1 : items.length - 1;
                 updateActiveItem();
+                // Scroll into view if needed
+                if (items[currentFocus]) {
+                    items[currentFocus].scrollIntoView({ block: 'nearest' });
+                }
             } else if (e.key === 'Enter') {
                 e.preventDefault();
                 if (currentFocus >= 0 && items[currentFocus]) {
@@ -476,6 +551,9 @@
                         showError();
                     }
                 }
+            } else if (e.key === 'Escape') {
+                suggestions.style.display = 'none';
+                currentFocus = -1;
             }
         });
 
@@ -483,7 +561,13 @@
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-container')) {
                 suggestions.style.display = 'none';
+                currentFocus = -1;
             }
+        });
+
+        // Prevent suggestions from closing when clicking on them
+        suggestions.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
 
         // Load data when page loads
