@@ -13,24 +13,39 @@
 
         body {
             font-family: 'Georgia', serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: url('https://drive.google.com/file/d/1fzzAd1ELBbMqEaf8PEyrMe3LjWc4uVgL/view?usp=drive_link') center/cover no-repeat;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
         }
 
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
             padding: 40px;
             max-width: 500px;
             width: 100%;
             text-align: center;
             position: relative;
-            /* Removed overflow: hidden to allow suggestions to show */
+            z-index: 2;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .container::before {
@@ -40,7 +55,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            background: linear-gradient(90deg, #d4af37, #ffd700, #daa520);
             border-radius: 20px 20px 0 0;
         }
 
@@ -52,19 +67,22 @@
             font-size: 2.5em;
             color: #2c3e50;
             margin-bottom: 10px;
-            font-weight: 300;
+            font-weight: 400;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .wedding-date {
-            color: #7f8c8d;
+            color: #5a5a5a;
             font-size: 1.1em;
             margin-bottom: 20px;
+            font-weight: 500;
         }
 
         .subtitle {
             color: #34495e;
             font-size: 1.2em;
             margin-bottom: 30px;
+            font-weight: 500;
         }
 
         .search-container {
@@ -86,9 +104,9 @@
         }
 
         #nameInput:focus {
-            border-color: #3498db;
-            background: white;
-            box-shadow: 0 0 20px rgba(52, 152, 219, 0.2);
+            border-color: #d4af37;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
             transform: translateY(-2px);
         }
 
@@ -107,16 +125,16 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: white;
-            border: 2px solid #e0e0e0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(212, 175, 55, 0.3);
             border-top: none;
             border-radius: 0 0 15px 15px;
             max-height: 250px;
             overflow-y: auto;
             z-index: 2000;
             display: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            /* Ensure suggestions appear above everything */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .suggestion-item {
@@ -131,9 +149,9 @@
 
         .suggestion-item:hover,
         .suggestion-item.active {
-            background-color: #e3f2fd;
-            color: #1976d2;
-            border-left: 4px solid #1976d2;
+            background-color: rgba(212, 175, 55, 0.1);
+            color: #8b6914;
+            border-left: 4px solid #d4af37;
             padding-left: 16px;
         }
 
