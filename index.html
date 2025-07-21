@@ -13,8 +13,9 @@
 
         body {
             font-family: 'Georgia', serif;
-            background: url('https://i.ibb.co/1Bp79dK/IMG-4094-2.jpg') center/cover no-repeat;
+            background: url('https://i.ibb.co/hxX1QYxv/IMG-4093.jpg') center/cover no-repeat;
             background-attachment: fixed;
+            background-size: cover;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -30,8 +31,37 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 1;
+        }
+
+        /* Force better image rendering */
+        body {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: optimizeQuality;
+        }
+
+        /* Responsive background adjustments */
+        @media (max-width: 768px) {
+            body {
+                background-position: center center;
+                background-size: cover;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1200px) {
+            body {
+                background-position: center center;
+                background-size: cover;
+            }
+        }
+
+        @media (min-width: 1201px) {
+            body {
+                background-position: center center;
+                background-size: cover;
+            }
         }
 
         .container {
