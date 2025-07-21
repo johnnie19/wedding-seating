@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Tahoma', serif;
-            background: url('https://i.ibb.co/hxX1QYxv/IMG-4093.jpg') 75% 75% / cover no-repeat;
+            font-family: 'Georgia', serif;
+            background: url('https://i.ibb.co/hxX1QYxv/IMG-4093.jpg') 85% 75% / cover no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
             display: flex;
@@ -34,31 +34,31 @@
             z-index: 1;
         }
 
-        /* Force better image rendering */
+        /* Better image rendering */
         body {
+            image-rendering: auto;
+            image-rendering: high-quality;
             image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
-            image-rendering: optimizeQuality;
         }
 
-        /* Responsive background adjustments - moved right to show faces */
+        /* Responsive background adjustments - significantly moved right */
         @media (max-width: 768px) {
             body {
-                background-position: 70% 80%;
+                background-position: 80% 80%;
                 background-size: cover;
             }
         }
 
         @media (min-width: 769px) and (max-width: 1200px) {
             body {
-                background-position: 75% 75%;
+                background-position: 85% 75%;
                 background-size: cover;
             }
         }
 
         @media (min-width: 1201px) {
             body {
-                background-position: 80% 70%;
+                background-position: 90% 70%;
                 background-size: cover;
             }
         }
