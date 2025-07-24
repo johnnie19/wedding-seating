@@ -28,7 +28,11 @@
     }
 
     @media (max-width: 768px) {
-      body { background-position: center 75%; }
+      body { 
+        background-position: center 75%; 
+        background-attachment: scroll; /* Better performance on mobile */
+        padding: 15px;
+      }
     }
     @media (min-width: 769px) and (max-width: 1200px) {
       body { background-position: center 80%; }
@@ -70,21 +74,25 @@
       position: relative; margin-bottom: 30px; z-index: 1000;
     }
     #nameInput {
-      width: 100%; padding: 15px 20px; font-size: 1.1em;
+      width: 100%; padding: 15px 50px 15px 20px; font-size: 1.1em;
       border: 2px solid #e0e0e0; border-radius: 50px;
       outline: none; transition: all 0.3s ease;
-      /* semi‑transparent */
-      background: rgba(255,255,255,0.8);
+      /* More transparent background */
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(5px);
     }
     #nameInput:focus {
       border-color: #d4af37;
-      background: rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.85);
       box-shadow: 0 0 20px rgba(212,175,55,0.3);
       transform: translateY(-2px);
     }
+    #nameInput::placeholder {
+      color: rgba(60,60,60,0.7);
+    }
 
     .search-icon {
-      position: absolute; right: 15px; top: 50%;
+      position: absolute; right: 18px; top: 50%;
       transform: translateY(-50%);
       color: #7f8c8d; font-size: 1.2em; pointer-events: none;
     }
@@ -126,8 +134,8 @@
     }
     @keyframes spin { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
     .error {
-      color: #e74c8c; background: #ffebee; padding: 15px;
-      border-radius: 10px;
+      color: #e74c8c; background: rgba(255,235,238,0.9); padding: 15px;
+      border-radius: 10px; backdrop-filter: blur(5px);
     }
     .result .guest-name {
       font-size: 1.8em; color: #27ae60; margin-bottom: 15px;
@@ -147,16 +155,90 @@
 
     @media (max-width: 600px) {
       body { padding: 10px; }
-      .container { padding: 30px 20px; margin: 10px; }
-      .couple-names { font-size: 2em; }
-      .table-number { font-size: 3em; }
-      .suggestions { max-height: 200px; font-size: 16px; }
+      .container { 
+        padding: 25px 20px; 
+        margin: 10px; 
+        border-radius: 15px;
+        max-width: none;
+      }
+      .couple-names { font-size: 2em; margin-bottom: 8px; }
+      .wedding-date { font-size: 1em; margin-bottom: 15px; }
+      .subtitle { font-size: 1.1em; margin-bottom: 25px; }
+      
+      #nameInput { 
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 18px 55px 18px 20px;
+        background: rgba(255,255,255,0.65); /* Slightly more opaque on mobile for readability */
+      }
+      #nameInput:focus {
+        background: rgba(255,255,255,0.9);
+      }
+      
+      .search-icon { 
+        right: 20px; 
+        font-size: 1.1em;
+      }
+      
+      .suggestions { 
+        max-height: 200px; 
+        font-size: 16px;
+        border-radius: 0 0 12px 12px;
+      }
       .suggestion-item {
         padding: 18px 20px;
-        font-size: 1.1em; min-height: 50px;
-        display: flex; align-items: center;
+        font-size: 1em; 
+        min-height: 54px; /* Better touch targets */
+        display: flex; 
+        align-items: center;
       }
-      #nameInput { font-size: 16px; }
+      
+      .table-number { font-size: 3em; }
+      .result .guest-name { font-size: 1.6em; }
+      .result .table-label { font-size: 1.3em; }
+    }
+
+    @media (max-width: 400px) {
+      .container { padding: 20px 15px; }
+      .couple-names { font-size: 1.8em; }
+      .table-number { font-size: 2.5em; }
+      #nameInput { padding: 16px 50px 16px 18px; }
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      .container {
+        background: rgba(40,40,40,0.95);
+        color: #e0e0e0;
+      }
+      .couple-names { color: #f0f0f0; }
+      .wedding-date, .subtitle { color: #c0c0c0; }
+      #nameInput {
+        background: rgba(60,60,60,0.6);
+        color: #e0e0e0;
+        border-color: #555;
+      }
+      #nameInput:focus {
+        background: rgba(60,60,60,0.85);
+      }
+      #nameInput::placeholder {
+        color: rgba(200,200,200,0.7);
+      }
+      .suggestions {
+        background: rgba(50,50,50,0.98);
+      }
+      .suggestion-item {
+        color: #e0e0e0;
+        border-bottom-color: #555;
+      }
     }
   </style>
 </head>
@@ -174,21 +256,22 @@
         id="nameInput"
         placeholder="Enter your name..."
         autocomplete="off"
+        aria-label="Enter guest name to find table assignment"
       />
-      <span class="search-icon">🔍</span>
-      <div class="suggestions" id="suggestions"></div>
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <div class="suggestions" id="suggestions" role="listbox" aria-label="Name suggestions"></div>
     </div>
 
-    <div class="loading" id="loading">
-      <span class="spinner"></span>
+    <div class="loading" id="loading" role="status" aria-live="polite">
+      <span class="spinner" aria-hidden="true"></span>
       Looking up your table...
     </div>
 
-    <div class="error" id="error">
+    <div class="error" id="error" role="alert" aria-live="polite">
       Sorry, we couldn't find your name. Please check the spelling or contact the wedding coordinator.
     </div>
 
-    <div class="result" id="result">
+    <div class="result" id="result" role="main" aria-live="polite">
       <div class="guest-name" id="guestName"></div>
       <div class="table-label">You're seated at</div>
       <div class="table-number" id="tableNumber"></div>
@@ -213,137 +296,271 @@
 
     async function loadGuestData() {
       try {
-        const resp = await fetch(SHEET_URL);
-        if (!resp.ok) throw new Error(`Status ${resp.status}`);
-        const csv = await resp.text();
-        const lines = csv.split('\n');
+        const response = await fetch(SHEET_URL, {
+          method: 'GET',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const csvText = await response.text();
+        const lines = csvText.split('\n').filter(line => line.trim());
+        
         guestData = [];
-        for (let i=1; i<lines.length; i++) {
+        
+        // Skip header row, process data rows
+        for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
-          let cols = [], cur = '', inQ=false;
-          for (let ch of line) {
-            if (ch === '"') inQ = !inQ;
-            else if (ch === ',' && !inQ) {
-              cols.push(cur.trim()); cur = '';
-            } else cur += ch;
+          
+          // Better CSV parsing
+          const columns = [];
+          let currentColumn = '';
+          let insideQuotes = false;
+          
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            
+            if (char === '"') {
+              insideQuotes = !insideQuotes;
+            } else if (char === ',' && !insideQuotes) {
+              columns.push(currentColumn.trim().replace(/^"|"$/g, ''));
+              currentColumn = '';
+            } else {
+              currentColumn += char;
+            }
           }
-          cols.push(cur.trim());
-          if (cols[0] && cols[1]) {
+          columns.push(currentColumn.trim().replace(/^"|"$/g, ''));
+          
+          // Ensure we have both name and table
+          if (columns[0] && columns[1]) {
             guestData.push({
-              name: cols[0].replace(/^"|"$/g,''),
-              table: cols[1].replace(/^"|"$/g,'')
+              name: columns[0],
+              table: columns[1]
             });
           }
         }
-        if (!guestData.length) throw new Error('No data');
-      } catch (e) {
-        console.error(e);
+        
+        if (guestData.length === 0) {
+          throw new Error('No guest data found in spreadsheet');
+        }
+        
+        console.log(`Loaded ${guestData.length} guests successfully`);
+        
+      } catch (err) {
+        console.error('Failed to load guest data:', err);
+        
+        // Fallback data for testing
         guestData = [
-          { name:'John Michael Smith', table:'1' },
-          { name:'Jane Elizabeth Doe', table:'2' },
-          { name:'Nissy Katherine Test', table:'1' },
-          /* …etc fallback… */
+          { name: 'John Michael Smith', table: '1' },
+          { name: 'Jane Elizabeth Doe', table: '2' },
+          { name: 'Nissy Katherine Test', table: '1' },
+          { name: 'Alen Testing User', table: '3' },
+          { name: 'Sarah Johnson', table: '4' },
+          { name: 'Michael Brown', table: '5' }
         ];
+        
+        console.log('Using fallback guest data');
       }
     }
 
     function searchGuests(query) {
-      if (!query) return [];
+      if (!query || query.length < 2) return [];
+      
+      const normalizedQuery = query.toLowerCase().trim();
+      
       return guestData
-        .filter(g => g.name.toLowerCase().includes(query.toLowerCase()))
-        .slice(0,6);
+        .filter(guest => {
+          const normalizedName = guest.name.toLowerCase();
+          return normalizedName.includes(normalizedQuery);
+        })
+        .sort((a, b) => {
+          // Prioritize exact matches and starts-with matches
+          const aName = a.name.toLowerCase();
+          const bName = b.name.toLowerCase();
+          const aStartsWith = aName.startsWith(normalizedQuery);
+          const bStartsWith = bName.startsWith(normalizedQuery);
+          
+          if (aStartsWith && !bStartsWith) return -1;
+          if (!aStartsWith && bStartsWith) return 1;
+          return aName.localeCompare(bName);
+        })
+        .slice(0, 6);
     }
 
-    function showSuggestions(list) {
+    function showSuggestions(matches) {
       suggestions.innerHTML = '';
-      if (!list.length) {
+      currentFocus = -1;
+      
+      if (matches.length === 0) {
         suggestions.style.display = 'none';
         return;
       }
-      list.forEach((g,i) => {
+      
+      matches.forEach((guest, index) => {
         const div = document.createElement('div');
         div.className = 'suggestion-item';
-        div.textContent = g.name;
-        div.onclick = () => selectGuest(g);
-        div.onmouseenter = () => { currentFocus = i; updateActiveItem(); };
+        div.textContent = guest.name;
+        div.setAttribute('role', 'option');
+        div.setAttribute('tabindex', '-1');
+        
+        div.onclick = () => selectGuest(guest);
+        div.onmouseenter = () => {
+          currentFocus = index;
+          updateActiveItem();
+        };
+        
         suggestions.appendChild(div);
       });
+      
       suggestions.style.display = 'block';
-      currentFocus = -1;
     }
 
     function updateActiveItem() {
       const items = suggestions.querySelectorAll('.suggestion-item');
-      items.forEach((it,i) => it.classList.toggle('active', i===currentFocus));
+      items.forEach((item, index) => {
+        item.classList.toggle('active', index === currentFocus);
+        if (index === currentFocus) {
+          item.setAttribute('aria-selected', 'true');
+        } else {
+          item.removeAttribute('aria-selected');
+        }
+      });
     }
 
-    function selectGuest(g) {
-      nameInput.value = g.name;
+    function selectGuest(guest) {
+      nameInput.value = guest.name;
       suggestions.style.display = 'none';
-      showResult(g);
+      showResult(guest);
     }
 
-    function showResult(g) {
-      loading.style.display = error.style.display = 'none';
-      guestName.textContent = g.name;
-      tableNumber.textContent = `Table ${g.table}`;
+    function showResult(guest) {
+      loading.style.display = 'none';
+      error.style.display = 'none';
+      
+      guestName.textContent = guest.name;
+      tableNumber.textContent = `Table ${guest.table}`;
       result.style.display = 'block';
+      
+      // Announce result for screen readers
+      result.setAttribute('aria-live', 'polite');
     }
 
     function showError() {
-      loading.style.display = result.style.display = 'none';
+      loading.style.display = 'none';
+      result.style.display = 'none';
       error.style.display = 'block';
     }
 
-    nameInput.addEventListener('input', e => {
-      const q = e.target.value.trim();
-      if (!q) {
+    function hideAllMessages() {
+      loading.style.display = 'none';
+      error.style.display = 'none';
+      result.style.display = 'none';
+    }
+
+    // Event listeners
+    nameInput.addEventListener('input', (e) => {
+      const query = e.target.value.trim();
+      
+      if (!query) {
         suggestions.style.display = 'none';
-        loading.style.display = error.style.display = result.style.display = 'none';
+        hideAllMessages();
         return;
       }
-      const matches = searchGuests(q);
+      
+      const matches = searchGuests(query);
       showSuggestions(matches);
-      const exact = guestData.find(g => g.name.toLowerCase()===q.toLowerCase());
-      if (exact) setTimeout(()=> showResult(exact), 500);
-    });
-
-    nameInput.addEventListener('keydown', e => {
-      const items = suggestions.querySelectorAll('.suggestion-item');
-      if (!items.length) return;
-      if (e.key==='ArrowDown') {
-        e.preventDefault();
-        currentFocus = currentFocus < items.length-1 ? currentFocus+1 : 0;
-        updateActiveItem();
-        items[currentFocus]?.scrollIntoView({ block:'nearest' });
-      } else if (e.key==='ArrowUp') {
-        e.preventDefault();
-        currentFocus = currentFocus > 0 ? currentFocus-1 : items.length-1;
-        updateActiveItem();
-        items[currentFocus]?.scrollIntoView({ block:'nearest' });
-      } else if (e.key==='Enter') {
-        e.preventDefault();
-        if (currentFocus > -1) items[currentFocus].click();
-        else {
-          const q = nameInput.value.trim();
-          const m = guestData.find(g => g.name.toLowerCase().includes(q.toLowerCase()));
-          m ? selectGuest(m) : showError();
-        }
-      } else if (e.key==='Escape') {
-        suggestions.style.display = 'none';
-        currentFocus = -1;
+      
+      // Check for exact match
+      const exactMatch = guestData.find(guest => 
+        guest.name.toLowerCase() === query.toLowerCase()
+      );
+      
+      if (exactMatch) {
+        // Small delay to show the result smoothly
+        setTimeout(() => showResult(exactMatch), 300);
       }
     });
 
-    document.addEventListener('click', e => {
+    nameInput.addEventListener('keydown', (e) => {
+      const items = suggestions.querySelectorAll('.suggestion-item');
+      
+      if (!items.length) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const query = nameInput.value.trim();
+          const match = guestData.find(guest => 
+            guest.name.toLowerCase().includes(query.toLowerCase())
+          );
+          
+          if (match) {
+            selectGuest(match);
+          } else {
+            showError();
+          }
+        }
+        return;
+      }
+      
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          currentFocus = currentFocus < items.length - 1 ? currentFocus + 1 : 0;
+          updateActiveItem();
+          items[currentFocus]?.scrollIntoView({ block: 'nearest' });
+          break;
+          
+        case 'ArrowUp':
+          e.preventDefault();
+          currentFocus = currentFocus > 0 ? currentFocus - 1 : items.length - 1;
+          updateActiveItem();
+          items[currentFocus]?.scrollIntoView({ block: 'nearest' });
+          break;
+          
+        case 'Enter':
+          e.preventDefault();
+          if (currentFocus >= 0 && items[currentFocus]) {
+            items[currentFocus].click();
+          } else {
+            const query = nameInput.value.trim();
+            const match = guestData.find(guest => 
+              guest.name.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            if (match) {
+              selectGuest(match);
+            } else {
+              showError();
+            }
+          }
+          break;
+          
+        case 'Escape':
+          suggestions.style.display = 'none';
+          currentFocus = -1;
+          nameInput.blur();
+          break;
+      }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', (e) => {
       if (!e.target.closest('.search-container')) {
         suggestions.style.display = 'none';
         currentFocus = -1;
       }
     });
-    suggestions.addEventListener('click', e => e.stopPropagation());
 
+    // Prevent suggestions from closing when clicking inside
+    suggestions.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Load guest data when page loads
     window.addEventListener('load', loadGuestData);
   </script>
 </body>
