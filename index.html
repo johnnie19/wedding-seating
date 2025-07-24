@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Georgia', serif;
-            background: url('https://i.ibb.co/hxX1QYxv/IMG-4093.jpg') 85% 75% / cover no-repeat;
+            font-family: 'Tahoma', serif;
+            background: url('https://i.ibb.co/hxX1QYxv/IMG-4093.jpg') 65% 35% / cover no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
             display: flex;
@@ -34,31 +34,31 @@
             z-index: 1;
         }
 
-        /* Better image rendering */
+        /* Force better image rendering */
         body {
-            image-rendering: auto;
-            image-rendering: high-quality;
             image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: optimizeQuality;
         }
 
-        /* Responsive background adjustments - significantly moved right */
+        /* Responsive background adjustments */
         @media (max-width: 768px) {
             body {
-                background-position: 80% 80%;
+                background-position: 70% 30%;
                 background-size: cover;
             }
         }
 
         @media (min-width: 769px) and (max-width: 1200px) {
             body {
-                background-position: 85% 75%;
+                background-position: 65% 35%;
                 background-size: cover;
             }
         }
 
         @media (min-width: 1201px) {
             body {
-                background-position: 90% 70%;
+                background-position: 60% 40%;
                 background-size: cover;
             }
         }
@@ -125,18 +125,27 @@
             width: 100%;
             padding: 15px 20px;
             font-size: 1.1em;
-            border: 2px solid #e0e0e0;
+            border: 2px solid rgba(224, 224, 224, 0.4);
             border-radius: 50px;
             outline: none;
             transition: all 0.3s ease;
-            background: #f8f9fa;
+            background: rgba(248, 249, 250, 0.3);
+            backdrop-filter: blur(8px);
+            color: #2c3e50;
+            font-weight: 500;
         }
 
         #nameInput:focus {
-            border-color: #d4af37;
-            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(212, 175, 55, 0.7);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
             transform: translateY(-2px);
+        }
+
+        #nameInput::placeholder {
+            color: rgba(44, 62, 80, 0.7);
+            font-style: italic;
         }
 
         .search-icon {
