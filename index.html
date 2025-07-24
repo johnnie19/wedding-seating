@@ -78,17 +78,17 @@
       border: 2px solid #e0e0e0; border-radius: 50px;
       outline: none; transition: all 0.3s ease;
       /* More transparent background */
-      background: rgba(255,255,255,0.6);
-      backdrop-filter: blur(5px);
+      background: rgba(255, 255, 255, 0.6);
+      color: #2c3e50;
     }
     #nameInput:focus {
       border-color: #d4af37;
-      background: rgba(255,255,255,0.85);
+      background: rgba(255, 255, 255, 0.85);
       box-shadow: 0 0 20px rgba(212,175,55,0.3);
       transform: translateY(-2px);
     }
     #nameInput::placeholder {
-      color: rgba(60,60,60,0.7);
+      color: rgba(60, 60, 60, 0.7);
     }
 
     .search-icon {
@@ -168,10 +168,11 @@
       #nameInput { 
         font-size: 16px; /* Prevents zoom on iOS */
         padding: 18px 55px 18px 20px;
-        background: rgba(255,255,255,0.65); /* Slightly more opaque on mobile for readability */
+        background: rgba(255, 255, 255, 0.65); /* Slightly more opaque on mobile for readability */
+        color: #2c3e50;
       }
       #nameInput:focus {
-        background: rgba(255,255,255,0.9);
+        background: rgba(255, 255, 255, 0.9);
       }
       
       .search-icon { 
@@ -230,7 +231,7 @@
         background: rgba(60,60,60,0.85);
       }
       #nameInput::placeholder {
-        color: rgba(200,200,200,0.7);
+        color: rgba(60, 60, 60, 0.8);
       }
       .suggestions {
         background: rgba(50,50,50,0.98);
